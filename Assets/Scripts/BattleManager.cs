@@ -1,0 +1,103 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BattleManager : MonoBehaviour
+{
+    [SerializeField] private List<AnswerButton> answerButtons;
+    [SerializeField] private Player player;
+    [SerializeField] private Enemy enemy;
+    [SerializeField] private QuestionSetup questionSetup;
+    public BattleState state;
+    public event EventHandler<OnChangedStateEventArgs> OnChangedState;
+    private float battleStart;
+    public class OnChangedStateEventArgs
+    {
+        public BattleState state;
+    }
+    public enum BattleState
+    {
+        Idle,
+        QuizStart,
+        MoveToPlayer,
+        MoveToEnemy,
+        BackToOriginalPosition
+
+    }
+
+    private void Start()
+    {
+        state = BattleState.Idle;
+        foreach (var button in answerButtons)
+        {
+            button.OnCorrectAnswer += Button_OnAnswer;
+            button.OnWrongtAnswer += Button_OnWrongtAnswer;
+        }
+        player.OnAttack += Player_OnAttack;
+        enemy.OnEnemyAttack += Enemy_OnEnemyAttack;
+        
+    }
+
+    private void Enemy_OnEnemyAttack(object sender, EventArgs e)
+    {
+        state = BattleState.BackToOriginalPosition;
+    }
+
+    private void Button_OnWrongtAnswer(object sender, EventArgs e)
+    {
+        state = BattleState.MoveToPlayer;
+    }
+
+    private void Player_OnAttack(object sender, EventArgs e)
+    {
+        state = BattleState.BackToOriginalPosition;
+    }
+
+    private void LateUpdate()
+    {
+        switch (state)
+        {
+            case BattleState.Idle:
+                battleStart = 0;
+                OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                {
+                    state = state,
+                });
+                break;
+            case BattleState.QuizStart:
+
+                battleStart = 0;
+                break;
+            case BattleState.MoveToPlayer:
+                OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                {
+                    state = state,
+                });
+                break;
+            case BattleState.MoveToEnemy:
+                OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                {
+                    state = state,
+                });
+                break;
+            case BattleState.BackToOriginalPosition:
+                OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                {
+                    state = state,
+                });
+                battleStart += Time.deltaTime;
+                if (battleStart > 2)
+                {
+                    questionSetup.Start();
+                    state = BattleState.Idle;
+                }
+                break;
+        }
+    }
+
+    private void Button_OnAnswer(object sender, System.EventArgs e)
+    {
+        state = BattleState.MoveToEnemy;
+    }
+}
