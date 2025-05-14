@@ -12,6 +12,7 @@ public class BattleManager : MonoBehaviour
     public BattleState state;
     public event EventHandler<OnChangedStateEventArgs> OnChangedState;
     private float battleStart;
+    float attackDuration;
     public class OnChangedStateEventArgs
     {
         public BattleState state;
@@ -22,7 +23,9 @@ public class BattleManager : MonoBehaviour
         QuizStart,
         MoveToPlayer,
         MoveToEnemy,
-        BackToOriginalPosition
+        Attack,
+        BackToOriginalPositionPlayer,
+        BackToOriginalPositionEnemy
 
     }
 
@@ -35,13 +38,19 @@ public class BattleManager : MonoBehaviour
             button.OnWrongtAnswer += Button_OnWrongtAnswer;
         }
         player.OnAttack += Player_OnAttack;
+        player.OnAttackEnemy += Player_OnAttackEnemy;
         enemy.OnEnemyAttack += Enemy_OnEnemyAttack;
         
     }
 
+    private void Player_OnAttackEnemy(object sender, EventArgs e)
+    {
+        state = BattleState.Attack;
+    }
+
     private void Enemy_OnEnemyAttack(object sender, EventArgs e)
     {
-        state = BattleState.BackToOriginalPosition;
+        state = BattleState.BackToOriginalPositionEnemy;
     }
 
     private void Button_OnWrongtAnswer(object sender, EventArgs e)
@@ -51,7 +60,7 @@ public class BattleManager : MonoBehaviour
 
     private void Player_OnAttack(object sender, EventArgs e)
     {
-        state = BattleState.BackToOriginalPosition;
+        state = BattleState.BackToOriginalPositionPlayer;
     }
 
     private void LateUpdate()
@@ -67,9 +76,15 @@ public class BattleManager : MonoBehaviour
                 break;
             case BattleState.QuizStart:
 
-                battleStart = 0;
+                
                 break;
             case BattleState.MoveToPlayer:
+                OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                {
+                    state = state,
+                });
+                break;
+            case BattleState.Attack:
                 OnChangedState?.Invoke(this, new OnChangedStateEventArgs
                 {
                     state = state,
@@ -81,13 +96,25 @@ public class BattleManager : MonoBehaviour
                     state = state,
                 });
                 break;
-            case BattleState.BackToOriginalPosition:
+            case BattleState.BackToOriginalPositionEnemy:
                 OnChangedState?.Invoke(this, new OnChangedStateEventArgs
                 {
                     state = state,
                 });
                 battleStart += Time.deltaTime;
-                if (battleStart > 2)
+                if (battleStart > 3)
+                {
+                    questionSetup.Start();
+                    state = BattleState.Idle;
+                }
+                break;
+            case BattleState.BackToOriginalPositionPlayer:
+                OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                {
+                    state = state,
+                });
+                battleStart += Time.deltaTime;
+                if (battleStart > 1.5)
                 {
                     questionSetup.Start();
                     state = BattleState.Idle;

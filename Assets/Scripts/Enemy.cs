@@ -27,7 +27,7 @@ public class Enemy : MonoBehaviour
             StopAllCoroutines();
 
         }
-        if (e.state == BattleManager.BattleState.BackToOriginalPosition)
+        if (e.state == BattleManager.BattleState.BackToOriginalPositionEnemy)
         {
             StartCoroutine(BackToPosition());
         }
