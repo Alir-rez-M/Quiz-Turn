@@ -47,4 +47,8 @@ public class Enemy : MonoBehaviour
         transform.position = Vector2.SmoothDamp(transform.position, startPosition.position, ref velocity, 0.7f);
 
     }
+    public void Damaged()
+    {
+        Debug.Log("Dameged!!!");
+    }
 }

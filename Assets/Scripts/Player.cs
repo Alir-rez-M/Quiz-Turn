@@ -9,9 +9,13 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform goPoint;
     [SerializeField] private Transform startPosition;
     [SerializeField] private float speed;
-    [SerializeField] float attackDuration;
+    [SerializeField] private float attackDuration;
+    [SerializeField] private Transform attackingPoint;
+    [SerializeField] private float radius;
     [SerializeField] Animator animator;
+    [SerializeField] LayerMask enemy;
     private float attackTimer;
+
     public event EventHandler OnAttackEnemy;
     Vector2 velocity;
     float attack;
@@ -34,14 +38,21 @@ public class Player : MonoBehaviour
         }
         if (e.state == BattleManager.BattleState.Attack)
         {
-
+            animator.SetBool("IsAttackin", true);
+            
             
         }
         if (e.state == BattleManager.BattleState.BackToOriginalPositionPlayer)
         {
             
             StartCoroutine(BackToPosition());
+            animator.SetBool("IsAttackin", false);
         }
+        else
+        {
+            
+        }
+        
         
     }
     private void Update()
@@ -50,9 +61,21 @@ public class Player : MonoBehaviour
         {
             OnAttackEnemy?.Invoke(this , EventArgs.Empty);  
             attack += Time.deltaTime;
-
-            if (attack > 2)
+            if (attack > 0.4 && attack < 0.6)
             {
+                Collider2D[] hits = Physics2D.OverlapCircleAll(attackingPoint.position, radius, enemy);
+                foreach (Collider2D hit in hits)
+                {
+                    if (hit.transform.TryGetComponent(out Enemy enemy))
+                    {
+                        enemy.Damaged();
+                    }
+                }
+            }
+
+            if (attack > 0.8f)
+            {
+                
 
                 OnAttack?.Invoke(this, EventArgs.Empty);
                 
@@ -71,6 +94,7 @@ public class Player : MonoBehaviour
         else
         {
             animator.SetBool("IsMoving", true);
+            attack = 0;
         }
         
     }
@@ -81,6 +105,10 @@ public class Player : MonoBehaviour
         transform.position = Vector2.MoveTowards(transform.position , new Vector2(startPosition.position.x , transform.position.y) , speed * Time.deltaTime);
         
 
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawSphere(attackingPoint.position, radius);
     }
 
 }
