@@ -32,6 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7869634254714447540}
+  - {fileID: 5297650907734364875}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4056306815167710367
@@ -51,6 +52,12 @@ MonoBehaviour:
   startPosition: {fileID: 0}
   speed: 20
   attackDuration: 1
+  animator: {fileID: 0}
+  attackingPoint: {fileID: 0}
+  radius: 0
+  player:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!61 &5857324247885335792
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -96,6 +103,37 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 3.087086, y: 4.0416355}
   m_EdgeRadius: 0
+--- !u!1 &7069272349010205895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5297650907734364875}
+  m_Layer: 0
+  m_Name: AttackinPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5297650907734364875
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7069272349010205895}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.37, y: 2.66, z: -0.02741714}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6515055222201088277}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7262633584084540291
 GameObject:
   m_ObjectHideFlags: 0

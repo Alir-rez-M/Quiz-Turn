@@ -105,5 +105,10 @@ public class Player : MonoBehaviour
     {
         Gizmos.DrawSphere(attackingPoint.position, radius);
     }
+    public void Damaged()
+    {
+        Debug.Log("Dameged!!!");
+    }
+
 
 }

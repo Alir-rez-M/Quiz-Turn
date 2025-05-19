@@ -11,6 +11,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float speed;
     [SerializeField] float attackDuration;
     [SerializeField] private Animator animator;
+    [SerializeField] private Transform attackingPoint;
+    [SerializeField] private float radius;
+    [SerializeField] private LayerMask player;
     private float attackTimer;
     private float attack;
     Vector2 velocity;
@@ -32,7 +35,7 @@ public class Enemy : MonoBehaviour
         }
         if (e.state == BattleManager.BattleState.EnemyAttack)
         {
-            Debug.Log("Attack");
+            animator.SetBool("IsAttacking" , true);
         }
         if (e.state == BattleManager.BattleState.BackToOriginalPositionEnemy)
         {
@@ -50,8 +53,20 @@ public class Enemy : MonoBehaviour
         {
             OnStartAttack?.Invoke(this , EventArgs.Empty);
             attack += Time.deltaTime;
+            if (attack > 0.4f && attack < 0.6f)
+            {
+                Collider2D[] hits = Physics2D.OverlapCircleAll(attackingPoint.position, radius, player);
+                foreach (Collider2D hit in hits)
+                {
+                    if (hit.transform.TryGetComponent(out Player player))
+                    {
+                        player.Damaged();
+                    }
+                }
+            }
             if (attack > 0.8f)
             {
+                animator.SetBool("IsAttacking", false);
                 OnEnemyAttack?.Invoke(this, EventArgs.Empty);
             }
 
@@ -73,6 +88,10 @@ public class Enemy : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0, 180, 0);
         transform.position = Vector2.MoveTowards(transform.position , new Vector2(startPosition.position.x , transform.position.y) , speed * Time.deltaTime);
 
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawSphere(attackingPoint.position, radius);
     }
     public void Damaged()
     {
