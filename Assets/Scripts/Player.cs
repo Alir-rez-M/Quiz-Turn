@@ -48,9 +48,9 @@ public class Player : MonoBehaviour
             StartCoroutine(BackToPosition());
             animator.SetBool("IsAttackin", false);
         }
-        else
+        if (e.state == BattleManager.BattleState.Idle)
         {
-            
+            transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
         }
         
         
@@ -85,11 +85,6 @@ public class Player : MonoBehaviour
         if (transform.position.x == goPoint.position.x || transform.position.x == startPosition.position.x)
         {
             animator.SetBool("IsMoving" , false);
-
-            if (transform.position.x == startPosition.position.x)
-            {
-                transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-            }
         }
         else
         {

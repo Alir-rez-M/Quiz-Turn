@@ -24,6 +24,7 @@ public class BattleManager : MonoBehaviour
         MoveToPlayer,
         MoveToEnemy,
         Attack,
+        EnemyAttack,
         BackToOriginalPositionPlayer,
         BackToOriginalPositionEnemy
 
@@ -40,7 +41,13 @@ public class BattleManager : MonoBehaviour
         player.OnAttack += Player_OnAttack;
         player.OnAttackEnemy += Player_OnAttackEnemy;
         enemy.OnEnemyAttack += Enemy_OnEnemyAttack;
+        enemy.OnStartAttack += Enemy_OnStartAttack;
         
+    }
+
+    private void Enemy_OnStartAttack(object sender, EventArgs e)
+    {
+        state = BattleState.EnemyAttack;
     }
 
     private void Player_OnAttackEnemy(object sender, EventArgs e)
@@ -90,6 +97,12 @@ public class BattleManager : MonoBehaviour
                     state = state,
                 });
                 break;
+            case BattleState.EnemyAttack:
+                OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                {
+                    state = state,
+                });
+                break;
             case BattleState.MoveToEnemy:
                 OnChangedState?.Invoke(this, new OnChangedStateEventArgs
                 {
@@ -102,7 +115,7 @@ public class BattleManager : MonoBehaviour
                     state = state,
                 });
                 battleStart += Time.deltaTime;
-                if (battleStart > 3)
+                if (battleStart > 1.5)
                 {
                     questionSetup.Start();
                     state = BattleState.Idle;

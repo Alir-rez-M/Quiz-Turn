@@ -10,9 +10,12 @@ public class Enemy : MonoBehaviour
     [SerializeField] private Transform startPosition;
     [SerializeField] private float speed;
     [SerializeField] float attackDuration;
+    [SerializeField] private Animator animator;
     private float attackTimer;
+    private float attack;
     Vector2 velocity;
     public event EventHandler OnEnemyAttack;
+    public event EventHandler OnStartAttack;
     private void Start()
     {
         transform.position = startPosition.position;
@@ -27,24 +30,48 @@ public class Enemy : MonoBehaviour
             StopAllCoroutines();
 
         }
+        if (e.state == BattleManager.BattleState.EnemyAttack)
+        {
+            Debug.Log("Attack");
+        }
         if (e.state == BattleManager.BattleState.BackToOriginalPositionEnemy)
         {
             StartCoroutine(BackToPosition());
+        }
+        if (e.state == BattleManager.BattleState.Idle)
+        {
+
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
         }
     }
     private void LateUpdate()
     {
         if (transform.position.x == goPoint.position.x)
         {
-            OnEnemyAttack?.Invoke(this, EventArgs.Empty);
-            velocity = new Vector2(10, 10);
+            OnStartAttack?.Invoke(this , EventArgs.Empty);
+            attack += Time.deltaTime;
+            if (attack > 0.8f)
+            {
+                OnEnemyAttack?.Invoke(this, EventArgs.Empty);
+            }
+
+            
+        }
+        if (transform.position.x == startPosition.position.x || transform.position.x == goPoint.position.x)
+        {
+            animator.SetBool("IsRunning", false);
+        }
+        else
+        {
+            animator.SetBool("IsRunning", true);
         }
 
     }
     private IEnumerator BackToPosition()
     {
         yield return new WaitForSeconds(attackDuration);
-        transform.position = Vector2.SmoothDamp(transform.position, startPosition.position, ref velocity, 0.7f);
+        transform.localRotation = Quaternion.Euler(0, 180, 0);
+        transform.position = Vector2.MoveTowards(transform.position , new Vector2(startPosition.position.x , transform.position.y) , speed * Time.deltaTime);
 
     }
     public void Damaged()
