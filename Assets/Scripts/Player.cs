@@ -20,6 +20,8 @@ public class Player : MonoBehaviour
     Vector2 velocity;
     float attack;
     public event EventHandler OnAttack;
+    public event EventHandler OnHit;
+    
     private void Start()
     {
         transform.position = startPosition.position;
@@ -66,9 +68,10 @@ public class Player : MonoBehaviour
                 Collider2D[] hits = Physics2D.OverlapCircleAll(attackingPoint.position, radius, enemy);
                 foreach (Collider2D hit in hits)
                 {
-                    if (hit.transform.TryGetComponent(out Enemy enemy))
+                    if (hit.transform.TryGetComponent(out EnemyHealth enemyHealth))
                     {
-                        enemy.Damaged();
+                        enemyHealth.Damage();
+
                     }
                 }
             }
@@ -105,10 +108,6 @@ public class Player : MonoBehaviour
     {
         Gizmos.DrawSphere(attackingPoint.position, radius);
     }
-    public void Damaged()
-    {
-        Debug.Log("Dameged!!!");
-    }
-
+    
 
 }

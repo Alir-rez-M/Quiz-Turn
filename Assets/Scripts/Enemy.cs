@@ -58,9 +58,9 @@ public class Enemy : MonoBehaviour
                 Collider2D[] hits = Physics2D.OverlapCircleAll(attackingPoint.position, radius, player);
                 foreach (Collider2D hit in hits)
                 {
-                    if (hit.transform.TryGetComponent(out Player player))
+                    if (hit.transform.TryGetComponent(out PlayerHealth playerHealth))
                     {
-                        player.Damaged();
+                        playerHealth.Damage();
                     }
                 }
             }
@@ -79,6 +79,7 @@ public class Enemy : MonoBehaviour
         else
         {
             animator.SetBool("IsRunning", true);
+            attack = 0;
         }
 
     }
