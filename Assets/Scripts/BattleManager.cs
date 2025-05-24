@@ -3,16 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BattleManager : MonoBehaviour
+public class BattleManager : MonoBehaviour , IUIManager
 {
     [SerializeField] private List<AnswerButton> answerButtons;
     [SerializeField] private Player player;
     [SerializeField] private Enemy enemy;
     [SerializeField] private QuestionSetup questionSetup;
+    [SerializeField] private float quizDuration;
     public BattleState state;
     public event EventHandler<OnChangedStateEventArgs> OnChangedState;
     private float battleStart;
     float attackDuration;
+    float quizTimer;
+    int test = 10;
+    public event EventHandler<IUIManager.OnUIManagerEventArgs> OnUIManager;
+    
+
     public class OnChangedStateEventArgs
     {
         public BattleState state;
@@ -32,6 +38,8 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
+
+        quizTimer = quizDuration;
         state = BattleState.Idle;
         foreach (var button in answerButtons)
         {
@@ -76,10 +84,23 @@ public class BattleManager : MonoBehaviour
         {
             case BattleState.Idle:
                 battleStart = 0;
+                quizTimer -= Time.deltaTime;
                 OnChangedState?.Invoke(this, new OnChangedStateEventArgs
                 {
                     state = state,
                 });
+                if (quizTimer <= 0)
+                {
+                    quizTimer = 0;
+                    state = BattleState.MoveToPlayer;
+                }
+                OnUIManager?.Invoke(this, new IUIManager.OnUIManagerEventArgs
+                {
+                    uiBar = quizTimer / quizDuration,
+                    timer = TimerFunction(quizTimer)
+                });
+                
+                
                 break;
             case BattleState.QuizStart:
 
@@ -90,6 +111,7 @@ public class BattleManager : MonoBehaviour
                 {
                     state = state,
                 });
+                quizTimer = quizDuration;
                 break;
             case BattleState.Attack:
                 OnChangedState?.Invoke(this, new OnChangedStateEventArgs
@@ -102,12 +124,14 @@ public class BattleManager : MonoBehaviour
                 {
                     state = state,
                 });
+                
                 break;
             case BattleState.MoveToEnemy:
                 OnChangedState?.Invoke(this, new OnChangedStateEventArgs
                 {
                     state = state,
                 });
+                quizTimer = quizDuration;
                 break;
             case BattleState.BackToOriginalPositionEnemy:
                 OnChangedState?.Invoke(this, new OnChangedStateEventArgs
@@ -117,8 +141,16 @@ public class BattleManager : MonoBehaviour
                 battleStart += Time.deltaTime;
                 if (battleStart > 1.5)
                 {
-                    questionSetup.Start();
-                    state = BattleState.Idle;
+                    if (questionSetup.questions.Count > 0)
+                    {
+                        questionSetup.Start();
+
+                        state = BattleState.Idle;
+                    }
+                    else
+                    {
+                        state = BattleState.Idle;
+                    }
                 }
                 break;
             case BattleState.BackToOriginalPositionPlayer:
@@ -129,8 +161,16 @@ public class BattleManager : MonoBehaviour
                 battleStart += Time.deltaTime;
                 if (battleStart > 1.5)
                 {
-                    questionSetup.Start();
-                    state = BattleState.Idle;
+                    if(questionSetup.questions.Count > 0)
+                    {
+                        questionSetup.Start();
+
+                        state = BattleState.Idle;
+                    }
+                    else
+                    {
+                        state = BattleState.Idle;
+                    }
                 }
                 break;
         }
@@ -140,4 +180,14 @@ public class BattleManager : MonoBehaviour
     {
         state = BattleState.MoveToEnemy;
     }
+    
+
+    public float TimerFunction(float curentTime)
+    {
+        curentTime += 1;
+
+        float sec = Mathf.FloorToInt(curentTime % 60);
+        return sec;
+    }
+    
 }

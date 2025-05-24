@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour 
 {
     [SerializeField] private BattleManager battleManager;
     [SerializeField] private Transform goPoint;
@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
     [SerializeField] Animator animator;
     [SerializeField] LayerMask enemy;
     private float attackTimer;
+    AudioSource swordSoundEffect;
+    [SerializeField] AudioClip swordClip;
 
     public event EventHandler OnAttackEnemy;
     Vector2 velocity;
@@ -26,6 +28,7 @@ public class Player : MonoBehaviour
     {
         transform.position = startPosition.position;
         battleManager.OnChangedState += BattleManager_OnChangedState;
+        swordSoundEffect = GetComponent<AudioSource>();
     }
 
     private void BattleManager_OnChangedState(object sender, BattleManager.OnChangedStateEventArgs e)
@@ -34,15 +37,19 @@ public class Player : MonoBehaviour
         if (e.state == BattleManager.BattleState.MoveToEnemy)
         {
             
-            transform.position = Vector2.MoveTowards(transform.position, new Vector2(goPoint.position.x , transform.position.y), Time.deltaTime * speed);
-            StopAllCoroutines();    
+            transform.position = Vector2.MoveTowards(transform.position, new Vector2(goPoint.position.x , transform.position.y), Time.deltaTime * speed);  
             
         }
         if (e.state == BattleManager.BattleState.Attack)
         {
+            
             animator.SetBool("IsAttackin", true);
+            StartCoroutine(SwordSoundEffect());
+
             
-            
+
+
+
         }
         if (e.state == BattleManager.BattleState.BackToOriginalPositionPlayer)
         {
@@ -107,6 +114,12 @@ public class Player : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.DrawSphere(attackingPoint.position, radius);
+    }
+    private IEnumerator SwordSoundEffect()
+    {
+        yield return new WaitForSeconds(0.2f);
+        swordSoundEffect.PlayOneShot(swordClip);
+
     }
     
 

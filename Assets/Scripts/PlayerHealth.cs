@@ -24,12 +24,12 @@ public class PlayerHealth : MonoBehaviour
             health -= 1;
             Debug.Log(health);
             animator.SetTrigger("GotHit");
+            OnHit?.Invoke(this, EventArgs.Empty);
             StartCoroutine(CanGetHit());
         }
     }
     public IEnumerator CanGetHit()
     {
-        OnHit?.Invoke(this, EventArgs.Empty);
         yield return new WaitForSeconds(0.5f);
         canGetHit = true;
     }
