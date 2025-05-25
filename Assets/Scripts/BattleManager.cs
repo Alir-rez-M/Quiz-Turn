@@ -10,11 +10,13 @@ public class BattleManager : MonoBehaviour , IUIManager
     [SerializeField] private Enemy enemy;
     [SerializeField] private QuestionSetup questionSetup;
     [SerializeField] private float quizDuration;
+    [SerializeField] private float battleDuration;
     public BattleState state;
     public event EventHandler<OnChangedStateEventArgs> OnChangedState;
     private float battleStart;
     float attackDuration;
     float quizTimer;
+    float battleTimer;
     int test = 10;
     public event EventHandler<IUIManager.OnUIManagerEventArgs> OnUIManager;
     
@@ -40,6 +42,7 @@ public class BattleManager : MonoBehaviour , IUIManager
     {
 
         quizTimer = quizDuration;
+        battleTimer = battleDuration;
         state = BattleState.Idle;
         foreach (var button in answerButtons)
         {
@@ -78,8 +81,15 @@ public class BattleManager : MonoBehaviour , IUIManager
         state = BattleState.BackToOriginalPositionPlayer;
     }
 
-    private void LateUpdate()
+    private void Update()
     {
+        battleTimer -= Time.deltaTime;
+        OnUIManager?.Invoke(this, new IUIManager.OnUIManagerEventArgs
+        {
+                battleTimer = BattleTimerFunction(battleTimer)
+        });
+        
+
         switch (state)
         {
             case BattleState.Idle:
@@ -94,13 +104,18 @@ public class BattleManager : MonoBehaviour , IUIManager
                     quizTimer = 0;
                     state = BattleState.MoveToPlayer;
                 }
+                
+
                 OnUIManager?.Invoke(this, new IUIManager.OnUIManagerEventArgs
                 {
                     uiBar = quizTimer / quizDuration,
-                    timer = TimerFunction(quizTimer)
+                    timer = TimerFunction(quizTimer),
+                    battleTimer = BattleTimerFunction(battleTimer)
                 });
                 
                 
+
+
                 break;
             case BattleState.QuizStart:
 
@@ -139,7 +154,7 @@ public class BattleManager : MonoBehaviour , IUIManager
                     state = state,
                 });
                 battleStart += Time.deltaTime;
-                if (battleStart > 1.5)
+                if (battleStart > 1.5f)
                 {
                     if (questionSetup.questions.Count > 0)
                     {
@@ -159,7 +174,7 @@ public class BattleManager : MonoBehaviour , IUIManager
                     state = state,
                 });
                 battleStart += Time.deltaTime;
-                if (battleStart > 1.5)
+                if (battleStart > 1.5f)
                 {
                     if(questionSetup.questions.Count > 0)
                     {
@@ -189,5 +204,12 @@ public class BattleManager : MonoBehaviour , IUIManager
         float sec = Mathf.FloorToInt(curentTime % 60);
         return sec;
     }
-    
+    public float BattleTimerFunction(float curentTime)
+    {
+        curentTime += 1;
+
+        float sec = Mathf.FloorToInt(curentTime);
+        return sec;
+    }
+
 }

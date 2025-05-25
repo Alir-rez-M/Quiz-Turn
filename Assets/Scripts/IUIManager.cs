@@ -11,6 +11,9 @@ public interface IUIManager
     {
         public float uiBar;
         public float timer;
+        public float battleTimer;
+        public float playerHealth;
+        public float enemyHealth;
         
     }
 

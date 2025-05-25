@@ -59,7 +59,10 @@ public class Player : MonoBehaviour
         }
         if (e.state == BattleManager.BattleState.Idle)
         {
-            transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+            if(transform.position.x == startPosition.position.x)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+            }
         }
         
         
