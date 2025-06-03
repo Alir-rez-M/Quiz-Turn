@@ -7,6 +7,9 @@ public class EnemyHealth : MonoBehaviour ,IUIManager
     public static EnemyHealth Instance { get; private set; }
     [SerializeField] private Animator animator;
     [SerializeField] private float health;
+    [SerializeField] private GameObject deadBody;
+    [SerializeField] private GameObject alive;
+    [SerializeField] private Transform deadPosition;
     public event EventHandler OnHit;
     bool canGetHit = true;
      float currentHealth;
@@ -41,6 +44,9 @@ public class EnemyHealth : MonoBehaviour ,IUIManager
             if (currentHealth <= 0)
             {
                 OnFightEnd?.Invoke(this , EventArgs.Empty); 
+                alive.SetActive(false);
+                Instantiate(deadBody, deadPosition);
+
             }
         }
     }

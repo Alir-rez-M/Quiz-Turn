@@ -53,12 +53,14 @@ MonoBehaviour:
   startPosition: {fileID: 0}
   speed: 20
   attackDuration: 1
-  animator: {fileID: 0}
+  damage: 0
   attackingPoint: {fileID: 0}
   radius: 0
-  player:
+  animator: {fileID: 0}
+  enemy:
     serializedVersion: 2
     m_Bits: 0
+  swordClip: {fileID: 0}
 --- !u!61 &5857324247885335792
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -118,6 +120,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 3678919224473982177}
   health: 3
+  deadBody: {fileID: 7654552765811960105, guid: 2145f27a61352734da569c2969e1aa2b, type: 3}
+  alive: {fileID: 7262633584084540291}
+  deadPosition: {fileID: 0}
 --- !u!1 &7069272349010205895
 GameObject:
   m_ObjectHideFlags: 0

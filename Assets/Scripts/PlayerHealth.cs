@@ -7,6 +7,9 @@ public class PlayerHealth : MonoBehaviour , IUIManager
     public static PlayerHealth Instance {  get; private set; }  
     [SerializeField] private Animator animator;
     [SerializeField] private float health;
+    [SerializeField] private GameObject deadVisual;
+    [SerializeField] private GameObject alive;
+    [SerializeField] private Transform deadPosition;
     float currentHealth;
     public event EventHandler OnHit;
     public event EventHandler<IUIManager.OnUIManagerEventArgs> OnUIManager;
@@ -46,6 +49,8 @@ public class PlayerHealth : MonoBehaviour , IUIManager
             if (currentHealth <= 0)
             {
                 OnFightEnd?.Invoke(this, EventArgs.Empty);
+                Instantiate(deadVisual, deadPosition);
+                alive.SetActive(false);
             }
 
         }

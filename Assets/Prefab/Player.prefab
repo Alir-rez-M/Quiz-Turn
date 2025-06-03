@@ -189,12 +189,14 @@ MonoBehaviour:
   startPosition: {fileID: 0}
   speed: 20
   attackDuration: 1
+  damage: 0
   attackingPoint: {fileID: 1546393833368933299}
   radius: 1
   animator: {fileID: 0}
   enemy:
     serializedVersion: 2
     m_Bits: 0
+  swordClip: {fileID: 0}
 --- !u!114 &6163111797710979809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,3 +211,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 6224884966063577171}
   health: 3
+  deadVisual: {fileID: 0}
+  alive: {fileID: 0}
+  deadPosition: {fileID: 0}
