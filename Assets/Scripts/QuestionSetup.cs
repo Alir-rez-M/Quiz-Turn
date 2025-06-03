@@ -1,6 +1,4 @@
-// This script controls choosing, presenting and randomizing questions & answers
 
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,7 +33,8 @@ public class BattleManager : MonoBehaviour , IUIManager
         Attack,
         EnemyAttack,
         BackToOriginalPositionPlayer,
-        BackToOriginalPositionEnemy
+        BackToOriginalPositionEnemy,
+        ResultOfFight
 
     }
 
@@ -53,7 +53,19 @@ public class BattleManager : MonoBehaviour , IUIManager
         player.OnAttackEnemy += Player_OnAttackEnemy;
         enemy.OnEnemyAttack += Enemy_OnEnemyAttack;
         enemy.OnStartAttack += Enemy_OnStartAttack;
+        EnemyHealth.Instance.OnFightEnd += Instance_OnFightEnd;
+        PlayerHealth.Instance.OnFightEnd += Instance_OnFightEnd1;
         
+    }
+
+    private void Instance_OnFightEnd1(object sender, EventArgs e)
+    {
+        state = BattleState.ResultOfFight;
+    }
+
+    private void Instance_OnFightEnd(object sender, EventArgs e)
+    {
+        state = BattleState.ResultOfFight;
     }
 
     private void Enemy_OnStartAttack(object sender, EventArgs e)
@@ -88,6 +100,10 @@ public class BattleManager : MonoBehaviour , IUIManager
         {
                 battleTimer = BattleTimerFunction(battleTimer)
         });
+        if (battleTimer <= 0)
+        {
+            state = BattleState.ResultOfFight;
+        }
         
 
         switch (state)
@@ -154,9 +170,9 @@ public class BattleManager : MonoBehaviour , IUIManager
                     state = state,
                 });
                 battleStart += Time.deltaTime;
-                if (battleStart > 1.5f)
+                if (battleStart > 1.2f)
                 {
-                    if (questionSetup.questions.Count > 0)
+                    if (questionSetup.questions.Count > 0 && PlayerHealth.Instance.GetCurrentHealth() > 0 && EnemyHealth.Instance.GetEnemyCurrentHealth() > 0)
                     {
                         questionSetup.Start();
 
@@ -164,7 +180,7 @@ public class BattleManager : MonoBehaviour , IUIManager
                     }
                     else
                     {
-                        state = BattleState.Idle;
+                        state = BattleState.ResultOfFight;
                     }
                 }
                 break;
@@ -174,9 +190,9 @@ public class BattleManager : MonoBehaviour , IUIManager
                     state = state,
                 });
                 battleStart += Time.deltaTime;
-                if (battleStart > 1.5f)
+                if (battleStart > 1.2f)
                 {
-                    if(questionSetup.questions.Count > 0)
+                    if(questionSetup.questions.Count > 0 && PlayerHealth.Instance.GetCurrentHealth() > 0 && EnemyHealth.Instance.GetEnemyCurrentHealth() > 0 )
                     {
                         questionSetup.Start();
 
@@ -184,8 +200,38 @@ public class BattleManager : MonoBehaviour , IUIManager
                     }
                     else
                     {
-                        state = BattleState.Idle;
+                        state = BattleState.ResultOfFight;
                     }
+                }
+                break;
+            case BattleState.ResultOfFight:
+                battleDuration = 0;
+                battleTimer = 0;    
+                if(PlayerHealth.Instance.GetCurrentHealth() > EnemyHealth.Instance.GetEnemyCurrentHealth())
+                {
+                    Debug.Log("Player Wins");
+                    OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                    {
+                        state = state,
+                    });
+                    FightsResult.Instance.PlayerWon();
+                }
+                if (PlayerHealth.Instance.GetCurrentHealth() < EnemyHealth.Instance.GetEnemyCurrentHealth())
+                {
+                    Debug.Log("Player Wins");
+                    OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                    {
+                        state = state,
+                    });
+                    FightsResult.Instance.EnemyWon();
+                }
+                if(PlayerHealth.Instance.GetCurrentHealth() == EnemyHealth.Instance.GetEnemyCurrentHealth())
+                {
+                    OnChangedState?.Invoke(this, new OnChangedStateEventArgs
+                    {
+                        state = state,
+                    });
+                    FightsResult.Instance.Draw();
                 }
                 break;
         }

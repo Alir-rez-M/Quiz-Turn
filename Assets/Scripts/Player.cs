@@ -1,25 +1,15 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour 
+public class Player : BaseValues 
 {
-    [SerializeField] private BattleManager battleManager;
-    [SerializeField] private Transform goPoint;
-    [SerializeField] private Transform startPosition;
-    [SerializeField] private float speed;
-    [SerializeField] private float attackDuration;
-    [SerializeField] private Transform attackingPoint;
-    [SerializeField] private float radius;
-    [SerializeField] Animator animator;
-    [SerializeField] LayerMask enemy;
-    private float attackTimer;
+    
+    
     AudioSource swordSoundEffect;
     [SerializeField] AudioClip swordClip;
 
     public event EventHandler OnAttackEnemy;
-    Vector2 velocity;
     float attack;
     public event EventHandler OnAttack;
     public event EventHandler OnHit;
@@ -33,12 +23,19 @@ public class Player : MonoBehaviour
 
     private void BattleManager_OnChangedState(object sender, BattleManager.OnChangedStateEventArgs e)
     {
-        
+        if (e.state == BattleManager.BattleState.Idle)
+        {
+            if (transform.position.x == startPosition.position.x)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+            }
+        }
         if (e.state == BattleManager.BattleState.MoveToEnemy)
         {
-            
-            transform.position = Vector2.MoveTowards(transform.position, new Vector2(goPoint.position.x , transform.position.y), Time.deltaTime * speed);  
-            
+
+            MoveToEnemy();
+
+
         }
         if (e.state == BattleManager.BattleState.Attack)
         {
@@ -57,9 +54,10 @@ public class Player : MonoBehaviour
             StartCoroutine(BackToPosition());
             animator.SetBool("IsAttackin", false);
         }
-        if (e.state == BattleManager.BattleState.Idle)
+        
+        if(e.state == BattleManager.BattleState.ResultOfFight && PlayerHealth.Instance.GetCurrentHealth() > 0)
         {
-            if(transform.position.x == startPosition.position.x)
+            if (transform.position.x == startPosition.position.x)
             {
                 transform.localRotation = Quaternion.Euler(0, 0, 0);
             }
@@ -80,7 +78,14 @@ public class Player : MonoBehaviour
                 {
                     if (hit.transform.TryGetComponent(out EnemyHealth enemyHealth))
                     {
-                        enemyHealth.Damage();
+                        if (PlayerHealth.Instance.GetCurrentHealth() <= 2)
+                        {
+                            enemyHealth.Damage(damage * 1.5f);
+                        }
+                        else
+                        {
+                            enemyHealth.Damage(damage);
+                        }
 
                     }
                 }
@@ -93,7 +98,6 @@ public class Player : MonoBehaviour
                 OnAttack?.Invoke(this, EventArgs.Empty);
                 
             }
-            velocity = new Vector2(-10, 10);
         }
         if (transform.position.x == goPoint.position.x || transform.position.x == startPosition.position.x)
         {
@@ -124,6 +128,10 @@ public class Player : MonoBehaviour
         swordSoundEffect.PlayOneShot(swordClip);
 
     }
-    
+    public override void MoveToEnemy()
+    {
+        transform.position = Vector2.MoveTowards(transform.position, new Vector2(goPoint.position.x, transform.position.y), Time.deltaTime * speed);
+    }
+
 
 }

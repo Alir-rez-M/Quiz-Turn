@@ -1,45 +1,53 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour , IUIManager
 {
+    public static PlayerHealth Instance {  get; private set; }  
     [SerializeField] private Animator animator;
     [SerializeField] private float health;
     float currentHealth;
     public event EventHandler OnHit;
     public event EventHandler<IUIManager.OnUIManagerEventArgs> OnUIManager;
-    
+    public event EventHandler OnFightEnd;
     bool canGetHit = true;
     private void Start()
     {
         currentHealth = health;
     }
-
-    private void Update()
+    private void Awake()
     {
-        
+        if (Instance != null)
+        {
+            Instance = null;
+        }
+        Instance = this;
     }
-    public void Damage()
+
+    public void Damage(float damage)
     {
 
         
         if (canGetHit)
         {
             canGetHit = false;
-            health -= 1;
+            currentHealth -= damage ;
             Debug.Log(health);
             animator.SetTrigger("GotHit");
             OnUIManager?.Invoke(this , new IUIManager.OnUIManagerEventArgs()
             {
-                playerHealth = health /currentHealth,
+                playerHealth = currentHealth /health,
             });
           
             
             OnHit?.Invoke(this, EventArgs.Empty);
             StartCoroutine(CanGetHit());
-            
+            if (currentHealth <= 0)
+            {
+                OnFightEnd?.Invoke(this, EventArgs.Empty);
+            }
+
         }
         
     }
@@ -47,6 +55,10 @@ public class PlayerHealth : MonoBehaviour , IUIManager
     {
         yield return new WaitForSeconds(0.5f);
         canGetHit = true;
+    }
+    public  float GetCurrentHealth()
+    {
+        return currentHealth;
     }
 
 }

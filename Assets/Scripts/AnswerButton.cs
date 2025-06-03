@@ -1,7 +1,5 @@
 // This script is for the buttons the answers will go on
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;

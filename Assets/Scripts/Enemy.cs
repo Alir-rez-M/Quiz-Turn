@@ -1,28 +1,19 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : BaseValues
 {
-    [SerializeField] private BattleManager battleManager;
-    [SerializeField] private Transform goPoint;
-    [SerializeField] private Transform startPosition;
-    [SerializeField] private float speed;
-    [SerializeField] float attackDuration;
-    [SerializeField] private Animator animator;
-    [SerializeField] private Transform attackingPoint;
-    [SerializeField] private float radius;
-    [SerializeField] private LayerMask player;
-    private float attackTimer;
+    AudioSource swordSoundEffect;
+    [SerializeField] AudioClip swordClip;
     private float attack;
-    Vector2 velocity;
     public event EventHandler OnEnemyAttack;
     public event EventHandler OnStartAttack;
     private void Start()
     {
         transform.position = startPosition.position;
         battleManager.OnChangedState += BattleManager_OnChangedState;
+        swordSoundEffect = GetComponent<AudioSource>();
     }
 
     private void BattleManager_OnChangedState(object sender, BattleManager.OnChangedStateEventArgs e)
@@ -36,6 +27,9 @@ public class Enemy : MonoBehaviour
         if (e.state == BattleManager.BattleState.EnemyAttack)
         {
             animator.SetBool("IsAttacking" , true);
+
+            StartCoroutine(SwordSoundEffect());
+
         }
         if (e.state == BattleManager.BattleState.BackToOriginalPositionEnemy)
         {
@@ -46,6 +40,13 @@ public class Enemy : MonoBehaviour
 
             transform.localRotation = Quaternion.Euler(0, 0, 0);
         }
+        if (e.state == BattleManager.BattleState.ResultOfFight && EnemyHealth.Instance.GetEnemyCurrentHealth() > 0)
+        {
+            if (transform.position.x == startPosition.position.x)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+            }
+        }
     }
     private void LateUpdate()
     {
@@ -55,12 +56,12 @@ public class Enemy : MonoBehaviour
             attack += Time.deltaTime;
             if (attack > 0.4f && attack < 0.6f)
             {
-                Collider2D[] hits = Physics2D.OverlapCircleAll(attackingPoint.position, radius, player);
+                Collider2D[] hits = Physics2D.OverlapCircleAll(attackingPoint.position, radius);
                 foreach (Collider2D hit in hits)
                 {
                     if (hit.transform.TryGetComponent(out PlayerHealth playerHealth))
                     {
-                        playerHealth.Damage();
+                        playerHealth.Damage(damage);
                     }
                 }
             }
@@ -97,5 +98,11 @@ public class Enemy : MonoBehaviour
     public void Damaged()
     {
         Debug.Log("Dameged!!!");
+    }
+    private IEnumerator SwordSoundEffect()
+    {
+        yield return new WaitForSeconds(0.2f);
+        swordSoundEffect.PlayOneShot(swordClip);
+
     }
 }
